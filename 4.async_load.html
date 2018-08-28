@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Async Load Demo</title>
+    <script src="js/d3.v5.min.js"></script>
+    <style>
+        svg {
+            width: 600px;
+            height: 500px;
+            border: 1px;
+            border-color: gray;
+            border-style: solid;
+        }
+
+        text {
+            text-anchor: middle;
+        }
+
+        circle {
+            fill: orange;
+            stroke: orange;
+            fill-opacity: 0.5;
+        }
+
+        button {
+            margin-bottom: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Async Load Demo</h1>
+<div id="graphArea">
+</div>
+<script>
+let currentIndex = 0
+let lineLength = 400
+
+// 创建切换数据按钮和监听处理
+d3.select('#graphArea').append('button').text('切换')
+    .on('click', function () {
+        currentIndex++
+
+        d3.json('data/data.json').then((data) => {
+            if (currentIndex == data.length) {
+                currentIndex = 0
+            }
+
+            let circle = svg.select('g').selectAll('circle').data(data[currentIndex][1])
+            circle.exit().remove()
+            let newCircle = circle.enter().append('circle').attr('r', 0)
+                .attr('cx', (d, i) => {
+                    let spacing = lineLength / data[currentIndex][1].length
+                    return 100 + i * spacing
+                })
+            circle = newCircle.merge(circle)
+
+            circle.transition().duration(500)
+                .attr('cx', (d, i) => {
+                    let spacing = lineLength / data[currentIndex][1].length
+                    return 100 + i * spacing
+                })
+                .attr('cy', 250)
+                .attr('r', (d) => {
+                    return d
+                })
+            svg.select('text').text(data[currentIndex][0])
+        })
+    })
+d3.select('#graphArea').append('br')
+
+//创建svg
+let svg = d3.select('#graphArea').append('svg')
+
+//创建数轴
+svg.append('line')
+    .attr('x1', 40)
+    .attr('y1', 250)
+    .attr('x2', 560)
+    .attr('y2', 250)
+    .attr('stroke', '#ddd')
+
+d3.json('data/data.json').then((data) => {
+    //创建圆
+    svg.append('g').selectAll('circle')
+        .data(data[currentIndex][1])
+        .enter()
+        .append('circle')
+        .attr('cx', (d, i) => {
+            let spacing = lineLength / data[currentIndex][1].length
+            return 100 + i * spacing
+        })
+        .attr('cy', 250)
+        .attr('r', (d) => {
+            return d
+        })
+
+    //创建标题文本
+    svg.append('text').attr('x', 250).attr('y', 50).text(data[currentIndex][0])
+})
+</script>
+</body>
+</html>
