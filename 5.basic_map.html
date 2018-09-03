@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basic Map</title>
+    <script src="js/d3.v5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        svg {
+            width: 1000px;
+            height: 800px;
+        }
+    </style>
+</head>
+<body>
+<!-- http://bl.ocks.org/almccon/fe445f1d6b177fd0946800a48aa59c71 -->
+<script>
+let width = 500
+let height = 480
+
+let svg = d3.select("body").append("svg")
+
+let projection = d3.geoMercator()
+    .scale(width / 2 / Math.PI)
+    .translate([width / 2, height / 2])
+
+let path = d3.geoPath()
+    .projection(projection)
+
+let url = "data/world-110m.geojson"
+
+d3.json(url).then((geojson) => {
+    svg.append("path")
+        .attr("d", path(geojson))
+})
+
+</script>
+</body>
+</html>
